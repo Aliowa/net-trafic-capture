@@ -6,6 +6,10 @@ A lightweight **Wireshark-like** network traffic capture and analysis tool built
 ![Platform](https://img.shields.io/badge/Platform-Windows-0078D6?logo=windows)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
+<p align="center">
+  <img src="assets/screenshot.png" alt="NetCapture Screenshot" width="900"/>
+</p>
+
 ## ✨ Features
 
 - **Real-time packet capture** via Windows Raw Sockets (`SIO_RCVALL`) — no Npcap/WinPcap needed
