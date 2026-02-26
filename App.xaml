@@ -1,0 +1,12 @@
+﻿<Application x:Class="NetCapture.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:converters="clr-namespace:NetCapture.Converters"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <converters:InvertBoolConverter x:Key="InvertBoolConverter"/>
+        <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+        <converters:HexDumpConverter x:Key="HexDumpConverterGlobal"/>
+        <converters:ProtocolColorConverter x:Key="ProtocolColorConverterGlobal"/>
+    </Application.Resources>
+</Application>
