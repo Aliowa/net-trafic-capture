@@ -18,7 +18,7 @@ A lightweight **Wireshark-like** network traffic capture and analysis tool built
   - 📋 Packet list with color-coded protocol rows
   - 🌳 Packet detail tree (expandable header dissection by layer)
   - 🔢 Hex dump view (offset + hex + ASCII)
-- **Live filtering** — filter by protocol, IP address, port, or any text
+- **Per-column filtering** — independent filter box under each column header (No., Time, Source, Destination, Protocol, Length, Info)
 - **Interface selector** — choose from active network adapters
 - **Dark theme** — Catppuccin Mocha color scheme
 
@@ -35,7 +35,14 @@ A lightweight **Wireshark-like** network traffic capture and analysis tool built
 ```powershell
 git clone https://github.com/Aliowa/net-trafic-capture.git
 cd net-trafic-capture
-dotnet run
+dotnet run --project NetCapture.csproj
+```
+
+Or build first, then run the executable directly:
+
+```powershell
+dotnet build net-trafic-capture.sln
+.\bin\Debug\net8.0-windows\NetCapture.exe
 ```
 
 > ⚠️ **Must be run as Administrator** — Windows requires elevated privileges for raw socket packet capture.
@@ -45,7 +52,7 @@ dotnet run
 1. **Select a network interface** from the dropdown
 2. Click **▶ Start** to begin capturing packets
 3. **Click any packet** to see detailed protocol headers and hex dump
-4. Use the **Filter** field to narrow results (e.g., `tcp`, `dns`, `192.168.1.1`, `443`)
+4. Use the **per-column filter boxes** under each header to narrow results (e.g., type `tcp` under Protocol, `192.168.1.1` under Source)
 5. Click **⏹ Stop** to end capture, **🗑 Clear** to reset
 
 ## 🏗️ Architecture

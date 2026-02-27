@@ -13,6 +13,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
 {
     private readonly PacketCaptureService _captureService;
     private readonly object _packetsLock = new();
+    private bool _captureBlocked;
 
     [ObservableProperty]
     private ObservableCollection<CapturedPacket> _packets = new();
@@ -26,10 +27,16 @@ public partial class MainViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     private NetworkInterfaceInfo? _selectedInterface;
 
-    [ObservableProperty]
-    private string _filterText = string.Empty;
+    [ObservableProperty] private string _filterNo          = string.Empty;
+    [ObservableProperty] private string _filterTime        = string.Empty;
+    [ObservableProperty] private string _filterSource      = string.Empty;
+    [ObservableProperty] private string _filterDestination = string.Empty;
+    [ObservableProperty] private string _filterProtocol    = string.Empty;
+    [ObservableProperty] private string _filterLength      = string.Empty;
+    [ObservableProperty] private string _filterInfo        = string.Empty;
 
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(StartCaptureCommand))]
     private bool _isCapturing;
 
     [ObservableProperty]
@@ -63,34 +70,49 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
     private bool PacketFilter(object obj)
     {
-        if (string.IsNullOrWhiteSpace(FilterText)) return true;
         if (obj is not CapturedPacket packet) return false;
 
-        var filter = FilterText.Trim().ToLowerInvariant();
+        if (!string.IsNullOrWhiteSpace(FilterNo) &&
+            !packet.Number.ToString().Contains(FilterNo.Trim(), StringComparison.OrdinalIgnoreCase))
+            return false;
 
-        if (packet.Protocol.Equals(filter, StringComparison.OrdinalIgnoreCase))
-            return true;
+        if (!string.IsNullOrWhiteSpace(FilterTime) &&
+            !packet.TimestampFormatted.Contains(FilterTime.Trim(), StringComparison.OrdinalIgnoreCase))
+            return false;
 
-        if (packet.Source.Contains(filter, StringComparison.OrdinalIgnoreCase) ||
-            packet.Destination.Contains(filter, StringComparison.OrdinalIgnoreCase))
-            return true;
+        if (!string.IsNullOrWhiteSpace(FilterSource) &&
+            !packet.Source.Contains(FilterSource.Trim(), StringComparison.OrdinalIgnoreCase))
+            return false;
 
-        if (packet.Info.Contains(filter, StringComparison.OrdinalIgnoreCase))
-            return true;
+        if (!string.IsNullOrWhiteSpace(FilterDestination) &&
+            !packet.Destination.Contains(FilterDestination.Trim(), StringComparison.OrdinalIgnoreCase))
+            return false;
 
-        if (packet.Number.ToString().Contains(filter))
-            return true;
+        if (!string.IsNullOrWhiteSpace(FilterProtocol) &&
+            !packet.Protocol.Contains(FilterProtocol.Trim(), StringComparison.OrdinalIgnoreCase))
+            return false;
 
-        return false;
+        if (!string.IsNullOrWhiteSpace(FilterLength) &&
+            !packet.Length.ToString().Contains(FilterLength.Trim(), StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        if (!string.IsNullOrWhiteSpace(FilterInfo) &&
+            !packet.Info.Contains(FilterInfo.Trim(), StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        return true;
     }
 
-    partial void OnFilterTextChanged(string value)
-    {
-        Application.Current?.Dispatcher.Invoke(() =>
-        {
-            FilteredPackets?.Refresh();
-        });
-    }
+    private void RefreshFilter() =>
+        Application.Current?.Dispatcher.Invoke(() => FilteredPackets?.Refresh());
+
+    partial void OnFilterNoChanged(string value)          => RefreshFilter();
+    partial void OnFilterTimeChanged(string value)        => RefreshFilter();
+    partial void OnFilterSourceChanged(string value)      => RefreshFilter();
+    partial void OnFilterDestinationChanged(string value) => RefreshFilter();
+    partial void OnFilterProtocolChanged(string value)    => RefreshFilter();
+    partial void OnFilterLengthChanged(string value)      => RefreshFilter();
+    partial void OnFilterInfoChanged(string value)        => RefreshFilter();
 
     private void LoadInterfaces()
     {
@@ -111,7 +133,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         }
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanStartCapture))]
     private void StartCapture()
     {
         if (SelectedInterface == null)
@@ -126,12 +148,16 @@ public partial class MainViewModel : ObservableObject, IDisposable
             IsCapturing = true;
             StatusText = $"Capturing on {SelectedInterface.Description} ({SelectedInterface.IpAddress})...";
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             IsCapturing = false;
-            StatusText = $"Error: {ex.Message}. Run as Administrator!";
+            _captureBlocked = true;
+            StartCaptureCommand.NotifyCanExecuteChanged();
+            StatusText = "⚠ Access denied — restart the application as Administrator";
         }
     }
+
+    private bool CanStartCapture() => !IsCapturing && !_captureBlocked;
 
     [RelayCommand]
     private void StopCapture()
@@ -162,6 +188,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
             }
             PacketCount = 0;
             SelectedPacket = null;
+            _captureBlocked = false;
+            StartCaptureCommand.NotifyCanExecuteChanged();
             StatusText = "Cleared";
         });
     }

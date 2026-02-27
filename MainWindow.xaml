@@ -82,14 +82,30 @@
             <Setter Property="FontSize" Value="12"/>
         </Style>
 
+        <!-- Filter TextBox style used inside column headers -->
+        <Style x:Key="ColumnFilterBox" TargetType="TextBox">
+            <Setter Property="Background" Value="#1E1E2E"/>
+            <Setter Property="Foreground" Value="#CDD6F4"/>
+            <Setter Property="BorderBrush" Value="#585B70"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CaretBrush" Value="#CDD6F4"/>
+            <Setter Property="SelectionBrush" Value="#45475A"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Padding" Value="4,2"/>
+            <Setter Property="Margin" Value="0,4,0,2"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        </Style>
+
         <Style TargetType="DataGridColumnHeader">
             <Setter Property="Background" Value="#313244"/>
             <Setter Property="Foreground" Value="#BAC2DE"/>
-            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="Padding" Value="8,6,8,4"/>
             <Setter Property="BorderBrush" Value="#45475A"/>
             <Setter Property="BorderThickness" Value="0,0,1,1"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="FontSize" Value="12"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Stretch"/>
         </Style>
 
         <Style TargetType="DataGridRow">
@@ -147,9 +163,6 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="20"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
                 <!-- Interface selector -->
@@ -165,7 +178,6 @@
                 <!-- Start/Stop/Clear -->
                 <Button Grid.Column="2" Content="▶ Start" 
                         Command="{Binding StartCaptureCommand}"
-                        IsEnabled="{Binding IsCapturing, Converter={StaticResource InvertBoolConverter}}"
                         Style="{StaticResource ToolbarButton}" Margin="8,0,4,0">
                     <Button.Resources>
                         <Style TargetType="Border">
@@ -183,13 +195,7 @@
                         Command="{Binding ClearCaptureCommand}"
                         Style="{StaticResource ToolbarButton}" Margin="4,0,0,0"/>
 
-                <!-- Filter -->
-                <TextBlock Grid.Column="6" Text="🔍 Filter:" Foreground="#A6ADC8" 
-                           VerticalAlignment="Center" Margin="0,0,8,0" FontSize="13"/>
-                <TextBox Grid.Column="7" Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}" 
-                         FontSize="12" Padding="8,5"
-                         Background="#313244" Foreground="#CDD6F4" BorderBrush="#45475A" 
-                         CaretBrush="#CDD6F4"/>
+
             </Grid>
         </Border>
 
@@ -202,11 +208,60 @@
                   EnableRowVirtualization="True"
                   EnableColumnVirtualization="True">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="No." Binding="{Binding Number}" Width="70"/>
-                <DataGridTextColumn Header="Time" Binding="{Binding TimestampFormatted}" Width="140"/>
-                <DataGridTextColumn Header="Source" Binding="{Binding Source}" Width="180"/>
-                <DataGridTextColumn Header="Destination" Binding="{Binding Destination}" Width="180"/>
-                <DataGridTextColumn Header="Protocol" Binding="{Binding Protocol}" Width="80">
+
+                <DataGridTextColumn Binding="{Binding Number}" Width="70">
+                    <DataGridTextColumn.Header>
+                        <StackPanel>
+                            <TextBlock Text="No." FontWeight="SemiBold" Foreground="#BAC2DE"/>
+                            <TextBox Style="{StaticResource ColumnFilterBox}"
+                                     Text="{Binding DataContext.FilterNo, RelativeSource={RelativeSource AncestorType=DataGrid}, UpdateSourceTrigger=PropertyChanged}"
+                                     ToolTip="Filter by No."/>
+                        </StackPanel>
+                    </DataGridTextColumn.Header>
+                </DataGridTextColumn>
+
+                <DataGridTextColumn Binding="{Binding TimestampFormatted}" Width="140">
+                    <DataGridTextColumn.Header>
+                        <StackPanel>
+                            <TextBlock Text="Time" FontWeight="SemiBold" Foreground="#BAC2DE"/>
+                            <TextBox Style="{StaticResource ColumnFilterBox}"
+                                     Text="{Binding DataContext.FilterTime, RelativeSource={RelativeSource AncestorType=DataGrid}, UpdateSourceTrigger=PropertyChanged}"
+                                     ToolTip="Filter by Time"/>
+                        </StackPanel>
+                    </DataGridTextColumn.Header>
+                </DataGridTextColumn>
+
+                <DataGridTextColumn Binding="{Binding Source}" Width="180">
+                    <DataGridTextColumn.Header>
+                        <StackPanel>
+                            <TextBlock Text="Source" FontWeight="SemiBold" Foreground="#BAC2DE"/>
+                            <TextBox Style="{StaticResource ColumnFilterBox}"
+                                     Text="{Binding DataContext.FilterSource, RelativeSource={RelativeSource AncestorType=DataGrid}, UpdateSourceTrigger=PropertyChanged}"
+                                     ToolTip="Filter by Source"/>
+                        </StackPanel>
+                    </DataGridTextColumn.Header>
+                </DataGridTextColumn>
+
+                <DataGridTextColumn Binding="{Binding Destination}" Width="180">
+                    <DataGridTextColumn.Header>
+                        <StackPanel>
+                            <TextBlock Text="Destination" FontWeight="SemiBold" Foreground="#BAC2DE"/>
+                            <TextBox Style="{StaticResource ColumnFilterBox}"
+                                     Text="{Binding DataContext.FilterDestination, RelativeSource={RelativeSource AncestorType=DataGrid}, UpdateSourceTrigger=PropertyChanged}"
+                                     ToolTip="Filter by Destination"/>
+                        </StackPanel>
+                    </DataGridTextColumn.Header>
+                </DataGridTextColumn>
+
+                <DataGridTextColumn Binding="{Binding Protocol}" Width="80">
+                    <DataGridTextColumn.Header>
+                        <StackPanel>
+                            <TextBlock Text="Protocol" FontWeight="SemiBold" Foreground="#BAC2DE"/>
+                            <TextBox Style="{StaticResource ColumnFilterBox}"
+                                     Text="{Binding DataContext.FilterProtocol, RelativeSource={RelativeSource AncestorType=DataGrid}, UpdateSourceTrigger=PropertyChanged}"
+                                     ToolTip="Filter by Protocol"/>
+                        </StackPanel>
+                    </DataGridTextColumn.Header>
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="TextBlock">
                             <Setter Property="FontWeight" Value="Bold"/>
@@ -214,8 +269,29 @@
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
-                <DataGridTextColumn Header="Length" Binding="{Binding Length}" Width="70"/>
-                <DataGridTextColumn Header="Info" Binding="{Binding Info}" Width="*"/>
+
+                <DataGridTextColumn Binding="{Binding Length}" Width="70">
+                    <DataGridTextColumn.Header>
+                        <StackPanel>
+                            <TextBlock Text="Length" FontWeight="SemiBold" Foreground="#BAC2DE"/>
+                            <TextBox Style="{StaticResource ColumnFilterBox}"
+                                     Text="{Binding DataContext.FilterLength, RelativeSource={RelativeSource AncestorType=DataGrid}, UpdateSourceTrigger=PropertyChanged}"
+                                     ToolTip="Filter by Length"/>
+                        </StackPanel>
+                    </DataGridTextColumn.Header>
+                </DataGridTextColumn>
+
+                <DataGridTextColumn Binding="{Binding Info}" Width="*">
+                    <DataGridTextColumn.Header>
+                        <StackPanel>
+                            <TextBlock Text="Info" FontWeight="SemiBold" Foreground="#BAC2DE"/>
+                            <TextBox Style="{StaticResource ColumnFilterBox}"
+                                     Text="{Binding DataContext.FilterInfo, RelativeSource={RelativeSource AncestorType=DataGrid}, UpdateSourceTrigger=PropertyChanged}"
+                                     ToolTip="Filter by Info"/>
+                        </StackPanel>
+                    </DataGridTextColumn.Header>
+                </DataGridTextColumn>
+
             </DataGrid.Columns>
 
             <DataGrid.RowStyle>
