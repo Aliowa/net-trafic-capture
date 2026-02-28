@@ -7,7 +7,8 @@
         MinHeight="600" MinWidth="900"
         WindowStartupLocation="CenterScreen"
         Background="#1E1E2E"
-        Foreground="#CDD6F4">
+        Foreground="#CDD6F4"
+        Icon="assets/Icon.ico">
 
     <Window.Resources>
         <converters:HexDumpConverter x:Key="HexDumpConverter"/>
